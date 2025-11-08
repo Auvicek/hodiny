@@ -1,75 +1,76 @@
-const $ = (selector) => document.querySelector(selector);
+// ...existing code...
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
 
-const hour = $(".hour");
-const dot = $(".dot");
-const min = $(".min");
-const sec = $(".sec");
-const week = $(".week");
-const dateElement = $(".date");
-const tempElement = $(".temp-value");
+const hourEl = $(".hour");
+const minEl = $(".min");
+const secEl = $(".sec");
+const dateEl = $(".date");
+const tempEl = $(".temp-value");
+const weekdays = $$(".weekday");
+const ampmEl = $(".ampm");
+const toggleBtn = $("#toggle-format");
 
-let showDot = true;
+let is24 = true;
 
+// Simulovaná teplota (pro test)
 async function getTemperature() {
-    // Dočasné řešení - simulace teploty
-    // Až budete mít API klíč, odkomentujte původní kód a smažte tuto část
-    return new Promise((resolve) => {
-        const randomTemp = Math.floor(Math.random() * (30 - 15) + 15); // Náhodná teplota mezi 15-30°C
-        resolve(randomTemp);
+    return new Promise(resolve => {
+        const t = (Math.random() * 12 + 12).toFixed(1); // 12.0 - 24.0
+        setTimeout(() => resolve(t), 200);
     });
-    
-    /* Původní kód pro OpenWeather API
-    try {
-        const API_KEY = 'VÁŠ_API_KLÍČ'; // Vložte sem váš API klíč
-        const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Prague,cz&units=metric&appid=${API_KEY}`);
-        const data = await response.json();
-        return Math.round(data.main.temp);
-    } catch (error) {
-        console.error('Chyba při získávání teploty:', error);
-        return null;
-    }
-    */
 }
 
 async function updateTemperature() {
-    const temp = await getTemperature();
-    if (temp !== null) {
-        tempElement.textContent = temp;
-    }
+    const t = await getTemperature();
+    if (t != null) tempEl.textContent = t;
 }
 
-function update() {
-    showDot = !showDot;
+function updateClock() {
     const now = new Date();
 
-    // Aktualizace dvojteček
-    document.querySelectorAll('.dot').forEach(dot => {
-        if (showDot) {
-            dot.classList.add("invisible");
-        } else {
-            dot.classList.remove("invisible");
-        }
-    });
+    // čas
+    let hh = now.getHours();
+    const mm = now.getMinutes();
+    const ss = now.getSeconds();
 
-    // Aktualizace času
-    hour.textContent = String(now.getHours()).padStart(2, "0");
-    min.textContent = String(now.getMinutes()).padStart(2, "0");
-    sec.textContent = String(now.getSeconds()).padStart(2, "0");
+    if (!is24) {
+        const suffix = hh >= 12 ? "PM" : "AM";
+        let displayHour = hh % 12;
+        if (displayHour === 0) displayHour = 12;
+        hourEl.textContent = String(displayHour).padStart(2, "0");
+        ampmEl.textContent = suffix;
+        ampmEl.style.display = "inline-block";
+    } else {
+        hourEl.textContent = String(hh).padStart(2, "0");
+        ampmEl.textContent = "";
+        ampmEl.style.display = "none";
+    }
 
-    // Aktualizace datumu
-    dateElement.textContent = `${String(now.getDate()).padStart(2, "0")}.${String(now.getMonth() + 1).padStart(2, "0")}.${now.getFullYear()}`;
+    minEl.textContent = String(mm).padStart(2, "0");
+    secEl.textContent = String(ss).padStart(2, "0");
 
-    // Aktualizace dne v týdnu
-    const weekdays = document.querySelectorAll('.weekday');
-    weekdays.forEach(day => day.classList.remove("active"));
-    const activeDay = document.querySelector(`[data-day="${now.getDay()}"]`);
-    if (activeDay) activeDay.classList.add("active");
+    // datum
+    dateEl.textContent = `${String(now.getDate()).padStart(2,"0")}.${String(now.getMonth()+1).padStart(2,"0")}.${now.getFullYear()}`;
+
+    // aktivní den
+    $$(".weekday").forEach(w => w.classList.remove("active"));
+    const today = document.querySelector(`.weekday[data-day="${now.getDay()}"]`);
+    if (today) today.classList.add("active");
 }
 
-// Inicializace
-update();
-setInterval(update, 500);
+// toggle 12/24
+toggleBtn.addEventListener("click", () => {
+    is24 = !is24;
+    toggleBtn.setAttribute("aria-pressed", String(is24));
+    toggleBtn.textContent = is24 ? "24H" : "12H";
+    updateClock();
+});
 
-// Aktualizace teploty častěji pro testovací účely
+// init
+updateClock();
+setInterval(updateClock, 1000);
+
+// temperature update
 updateTemperature();
-setInterval(updateTemperature, 5 * 60 * 1000); // Každých 5 minut místo 30
+setInterval(updateTemperature, 5 * 60 * 1000);

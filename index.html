@@ -1,17 +1,17 @@
+<!-- ...existing code... -->
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Digitální hodiny</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="clock-wrapper">
-        <div class="digital-clock">
-            <div class="week">
+    <div class="clock-wrapper" aria-label="Digitální hodiny">
+        <div class="digital-clock" role="application">
+            <aside class="week" aria-hidden="true">
                 <div class="weekday" data-day="1">PONDĚLÍ</div>
                 <div class="weekday" data-day="2">ÚTERÝ</div>
                 <div class="weekday" data-day="3">STŘEDA</div>
@@ -19,22 +19,31 @@
                 <div class="weekday" data-day="5">PÁTEK</div>
                 <div class="weekday" data-day="6">SOBOTA</div>
                 <div class="weekday" data-day="0">NEDĚLE</div>
-            </div>
+            </aside>
+
             <div class="time-container">
-                <div class="time">
+                <div class="controls">
+                    <div class="location">Praha, CZ</div>
+                    <button id="toggle-format" aria-pressed="true" class="format-btn">24H</button>
+                </div>
+
+                <div class="time" aria-live="polite">
                     <span class="hour">12</span>
                     <span class="dot">:</span>
                     <span class="min">00</span>
                     <span class="dot">:</span>
                     <span class="sec">00</span>
+                    <span class="ampm" aria-hidden="true"></span>
                 </div>
-                <div class="date"></div>
-                <div class="temperature">
-                    <span class="temp-value">--</span>°C
+
+                <div class="meta">
+                    <div class="date" aria-hidden="true">01.01.2025</div>
+                    <div class="temperature"><span class="temp-value">--</span>°C</div>
                 </div>
             </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
